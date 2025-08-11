@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../app/store";
 import { PROFILE } from "../mock";
 import { useRef, useState } from "react";
-import DollAvatar from "./avatars/Avatar.tsx";
-import Avatar from "./avatars/Avatar.tsx";
+import Avatar from "./avatars/Avatar";
 
 function TiltCard({
                       side,
@@ -150,7 +149,7 @@ export default function SplitLanding() {
                     whileTap={{ scale: 0.96 }}
                     onDragStart={() => setDragging("dev")}
                     onDrag={(e) => {
-                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         const d = devRef.current?.getBoundingClientRect();
                         const m = musRef.current?.getBoundingClientRect();
                         if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) setOver("dev");
@@ -158,7 +157,7 @@ export default function SplitLanding() {
                         else setOver(null);
                     }}
                     onDragEnd={(e) => {
-                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         const d = devRef.current?.getBoundingClientRect();
                         const m = musRef.current?.getBoundingClientRect();
                         setDragging(null);
@@ -177,7 +176,7 @@ export default function SplitLanding() {
                     whileTap={{ scale: 0.96 }}
                     onDragStart={() => setDragging("violin")}
                     onDrag={(e) => {
-                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         const d = devRef.current?.getBoundingClientRect();
                         const m = musRef.current?.getBoundingClientRect();
                         if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) setOver("violin");
@@ -185,7 +184,7 @@ export default function SplitLanding() {
                         else setOver(null);
                     }}
                     onDragEnd={(e) => {
-                        const rect = (e.target as HTMLElement).getBoundingClientRect();
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                         const d = devRef.current?.getBoundingClientRect();
                         const m = musRef.current?.getBoundingClientRect();
                         setDragging(null);
@@ -195,7 +194,7 @@ export default function SplitLanding() {
                     }}
                     className="cursor-grab active:cursor-grabbing"
                 >
-                    <DollAvatar variant="violin" size={120} />
+                    <Avatar variant="violin" size={120} />
                 </motion.div>
             </div>
 
