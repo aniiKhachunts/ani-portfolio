@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -66,3 +68,142 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* --- Background & subtle grain --- */
+:root {
+  --grain-opacity: 0.08;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform, filter;
+}
+
+/* retro-modern gradient wash */
+body::before {
+  background:
+          radial-gradient(1200px 600px at 10% -10%, rgba(124,58,237,0.12), transparent 60%),
+          radial-gradient(1000px 500px at 90% 110%, rgba(16,185,129,0.10), transparent 60%),
+          radial-gradient(800px 400px at 50% 0%, rgba(255,255,255,0.04), transparent 65%);
+  animation: wash 16s ease-in-out infinite alternate;
+  transform: translateZ(0);
+}
+@keyframes wash {
+  0% { filter: hue-rotate(0deg) saturate(1); }
+  100% { filter: hue-rotate(-12deg) saturate(1.05); }
+}
+
+/* subtle grid lines */
+body::after {
+  background:
+          repeating-linear-gradient(
+                  to right,
+                  rgba(255,255,255,0.04) 0,
+                  rgba(255,255,255,0.04) 1px,
+                  transparent 1px,
+                  transparent 24px
+          ),
+          repeating-linear-gradient(
+                  to bottom,
+                  rgba(255,255,255,0.04) 0,
+                  rgba(255,255,255,0.04) 1px,
+                  transparent 1px,
+                  transparent 24px
+          );
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000 60%, transparent 100%);
+  opacity: 0.32;
+  transform: translateZ(0);
+}
+
+/* film grain (no extra asset; pure CSS noise) */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>\
+  <filter id='n'>\
+    <feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/>\
+    <feColorMatrix type='saturate' values='0'/>\
+  </filter>\
+  <rect width='100%' height='100%' filter='url(%23n)' opacity='0.12'/>\
+</svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: overlay;
+  opacity: var(--grain-opacity);
+  animation: grainShift 1.6s steps(2, end) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-3%,2%,0); }
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif;
+  --font-display: "Manrope", "Inter", ui-sans-serif;
+
+  --font-size-display: clamp(2.25rem, 4vw, 3.75rem);
+  --line-height-display: 1.05;
+
+  --color-bg: #0c0c0f;
+  --color-fg: #e8e8ec;
+  --color-mute: #a1a1aa;
+  --color-accent: #7c3aed;
+}
+
+/* Focus rings */
+:where(a, button, input, textarea, [tabindex]){:focus-visible{
+  outline: 2px solid color(display-p3 0.65 0.45 1 / 0.7);
+  outline-offset: 2px;
+  border-radius: .5rem;
+}}
+
+/* Minimal scrollbar */
+*{scrollbar-width: thin; scrollbar-color: #3f3f46 transparent;}
+::-webkit-scrollbar{height:8px;width:8px}
+::-webkit-scrollbar-thumb{background:#3f3f46;border-radius:999px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* Layout sanity */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { width: 100%; overflow-x: hidden; }
+
+/* Ensure any wide effects don't cause horizontal scroll */
+.overflow-clip { overflow: clip; } /* better than hidden for perf */
+
+/* Spotlight layer (pointer-follow) */
+.spotlight {
+  --x: 50%;
+  --y: 50%;
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+          radial-gradient(200px 200px at var(--x) var(--y), rgba(124,58,237,0.14), transparent 60%),
+          radial-gradient(360px 260px at calc(var(--x) + 10px) calc(var(--y) + 20px), rgba(16,185,129,0.10), transparent 65%);
+  mix-blend-mode: screen;
+  filter: blur(1px);
+  transition: background-position 80ms linear;
+}
+
+/* Per-card reactive highlight */
+.card-spotlight {
+  --px: 50%;
+  --py: 50%;
+  background:
+          radial-gradient(180px 140px at var(--px) var(--py), rgba(255,255,255,0.06), transparent 60%),
+          linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+@keyframes scrollDot {
+  0% { transform: translate(-50%, 0); opacity: 1; }
+  60% { transform: translate(-50%, 10px); opacity: 0; }
+  100% { transform: translate(-50%, 0); opacity: 0; }
+}
+
