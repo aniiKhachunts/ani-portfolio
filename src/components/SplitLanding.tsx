@@ -109,10 +109,6 @@ export default function SplitLanding() {
     const [dragging, setDragging] = useState<null | "violin" | "dev">(null);
     const [over, setOver] = useState<null | "violin" | "dev">(null);
 
-    function isOverlap(a: DOMRect, b: DOMRect) {
-        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-    }
-
     function handleDrop(kind: "violin" | "dev") {
         if (kind === "violin") {
             setWorld("violinist");
