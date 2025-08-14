@@ -35,8 +35,8 @@ function TiltCard({
         const el = ref.current;
         if (!el) return;
         const r = el.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width;  // 0..1
-        const py = (e.clientY - r.top) / r.height; // 0..1
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
         rx.set(px - 0.5);
         ry.set(py - 0.5);
         el.style.setProperty("--px", `${px * 100}%`);
@@ -55,7 +55,7 @@ function TiltCard({
                 onClick();
                 nav(to);
             }}
-            style={{ rotateX: rotX as any, rotateY: rotY as any, translateZ: lift as any }}
+            style={{ rotateX: rotX as never, rotateY: rotY as never, translateZ: lift as never }}
             className={`
         group relative isolate overflow-hidden rounded-2xl border border-zinc-800
         card-spotlight p-8 md:p-10 h-[38vh] md:h-[64vh] text-left will-change-transform
@@ -106,18 +106,9 @@ export default function SplitLanding() {
 
     const devRef = useRef<HTMLDivElement>(null);
     const musRef = useRef<HTMLDivElement>(null);
-    const [dragging, setDragging] = useState<null | "violin" | "dev">(null);
+    const devDragRef = useRef<HTMLDivElement>(null);
+    const vioDragRef = useRef<HTMLDivElement>(null);
     const [over, setOver] = useState<null | "violin" | "dev">(null);
-
-    function handleDrop(kind: "violin" | "dev") {
-        if (kind === "violin") {
-            setWorld("violinist");
-            nav("/violinist");
-        } else {
-            setWorld("developer");
-            nav("/developer");
-        }
-    }
 
     return (
         <div
@@ -139,69 +130,87 @@ export default function SplitLanding() {
             </div>
 
             <div className="z-20 flex items-center justify-center gap-10 h-40 md:h-48">
-                <motion.div
-                    drag
-                    dragMomentum={false}
-                    whileTap={{ scale: 0.96 }}
-                    onDragStart={() => setDragging("dev")}
-                    onDrag={(e) => {
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                        const d = devRef.current?.getBoundingClientRect();
-                        const m = musRef.current?.getBoundingClientRect();
-                        if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) setOver("dev");
-                        else if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) setOver("violin");
-                        else setOver(null);
-                    }}
-                    onDragEnd={(e) => {
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                        const d = devRef.current?.getBoundingClientRect();
-                        const m = musRef.current?.getBoundingClientRect();
-                        setDragging(null);
-                        if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) handleDrop("dev");
-                        else if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) handleDrop("violin");
-                        else setOver(null);
-                    }}
-                    className="cursor-grab active:cursor-grabbing"
-                >
-                    <Avatar variant="dev" size={120} />
-                </motion.div>
+                <div className="z-20 flex items-center justify-center gap-10 h-40 md:h-48">
+                    <motion.div
+                        ref={devDragRef}
+                        drag
+                        dragMomentum={false}
+                        whileTap={{ scale: 0.96 }}
+                        onDrag={() => {
+                            const rect = devDragRef.current?.getBoundingClientRect();
+                            if (!rect) return;
+                            const d = devRef.current?.getBoundingClientRect();
+                            const m = musRef.current?.getBoundingClientRect();
+                            if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) setOver("dev");
+                            else if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) setOver("violin");
+                            else setOver(null);
+                        }}
+                        onDragEnd={() => {
+                            const rect = devDragRef.current?.getBoundingClientRect();
+                            if (!rect) return;
+                            const d = devRef.current?.getBoundingClientRect();
+                            const m = musRef.current?.getBoundingClientRect();
+                            if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) {
+                                setWorld("developer");
+                                nav("/developer");
+                            } else if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) {
+                                setWorld("violinist");
+                                nav("/violinist");
+                            } else {
+                                setOver(null);
+                            }
+                        }}
+                        className="cursor-grab active:cursor-grabbing"
+                    >
+                        <Avatar variant="dev" size={120}/>
+                    </motion.div>
 
-                <motion.div
-                    drag
-                    dragMomentum={false}
-                    whileTap={{ scale: 0.96 }}
-                    onDragStart={() => setDragging("violin")}
-                    onDrag={(e) => {
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                        const d = devRef.current?.getBoundingClientRect();
-                        const m = musRef.current?.getBoundingClientRect();
-                        if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) setOver("violin");
-                        else if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) setOver("dev");
-                        else setOver(null);
-                    }}
-                    onDragEnd={(e) => {
-                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                        const d = devRef.current?.getBoundingClientRect();
-                        const m = musRef.current?.getBoundingClientRect();
-                        setDragging(null);
-                        if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) handleDrop("violin");
-                        else if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) handleDrop("dev");
-                        else setOver(null);
-                    }}
-                    className="cursor-grab active:cursor-grabbing"
-                >
-                    <Avatar variant="violin" size={120} />
-                </motion.div>
+                    <motion.div
+                        ref={vioDragRef}
+                        drag
+                        dragMomentum={false}
+                        whileTap={{ scale: 0.96 }}
+                        onDrag={() => {
+                            const rect = vioDragRef.current?.getBoundingClientRect();
+                            if (!rect) return;
+                            const d = devRef.current?.getBoundingClientRect();
+                            const m = musRef.current?.getBoundingClientRect();
+                            if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) setOver("violin");
+                            else if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) setOver("dev");
+                            else setOver(null);
+                        }}
+                        onDragEnd={() => {
+                            const rect = vioDragRef.current?.getBoundingClientRect();
+                            if (!rect) return;
+                            const d = devRef.current?.getBoundingClientRect();
+                            const m = musRef.current?.getBoundingClientRect();
+                            if (m && !(rect.right < m.left || rect.left > m.right || rect.bottom < m.top || rect.top > m.bottom)) {
+                                setWorld("violinist");
+                                nav("/violinist");
+                            } else if (d && !(rect.right < d.left || rect.left > d.right || rect.bottom < d.top || rect.top > d.bottom)) {
+                                setWorld("developer");
+                                nav("/developer");
+                            } else {
+                                setOver(null);
+                            }
+                        }}
+                        className="cursor-grab active:cursor-grabbing"
+                    >
+                        <Avatar variant="violin" size={120}/>
+                    </motion.div>
+                </div>
+
+
             </div>
 
             <div className="text-center text-xs text-zinc-500 z-20">Drag a doll onto a card</div>
 
             <div className="grid md:grid-cols-2 gap-6 z-10">
                 <div ref={devRef} className={over === "dev" ? "ring-2 ring-accent/70 rounded-2xl" : ""}>
-                    <TiltCard side="dev" title="Developer" to="/developer" onClick={() => setWorld("developer")} />
+                    <TiltCard side="dev" title="Developer" to="/developer" onClick={() => setWorld("developer")}/>
                 </div>
                 <div ref={musRef} className={over === "violin" ? "ring-2 ring-emerald-400/70 rounded-2xl" : ""}>
-                    <TiltCard side="music" title="Violinist" to="/violinist" onClick={() => setWorld("violinist")} />
+                    <TiltCard side="music" title="Violinist" to="/violinist" onClick={() => setWorld("violinist")}/>
                 </div>
             </div>
 
@@ -217,3 +226,5 @@ export default function SplitLanding() {
         </div>
     );
 }
+
+

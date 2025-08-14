@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useApp } from "../app/store";
 
 type TileRef = { el: HTMLDivElement | null };
-const IMAGES = Array.from({ length: 8 }).map((_, i) => `/loader/${String(i + 1).padStart(2, "0")}.jpg`);
+const IMAGES = Array.from({ length: 8 }).map((_, i) => `/loader/${String(i + 1).padStart(2, "0")}.jpeg`);
 
 const LOADER_MIN_MS = 2000;
 const LOADER_MIN_MS_REDUCED = 2200;
